@@ -8,7 +8,7 @@
     >
     <the-logo class="mb-4" :height="128" />
       <p
-        v-text="'myPuskesmas'"
+        v-text="'myPuskes'"
         class="mb-2 text-h4 font-weight-bold"
       />
 

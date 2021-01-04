@@ -7,6 +7,8 @@ const ref = db.collection(END_POINT)
 const state = {
   users: [],
   user: null,
+  family: null,
+  families: [],
   registerRole: null,
   formPatient: [
     {
@@ -127,6 +129,12 @@ const mutations = {
   SET_REGISTER_ROLE: (state, data) => {
     state.registerRole = data
   },
+  SET_USER_FAMILIES: (state, response) => {
+    state.families = response
+  },
+  SET_USER_FAMILY: (state, response) => {
+    state.family = response
+  },
 }
 
 const actions = {
@@ -163,19 +171,15 @@ const actions = {
     
     commit('SET_LOADING', 'GET', { root: true  })
 
-    // const data = (await user.get()).data()
-
-    // console.log('run')
     user.onSnapshot(snap => {
       commit('SET_USER', snap.data())
     })
 
-    
     commit('SET_LOADING', null, { root: true  })
   },
   async authGoogle ({ commit }) {
     commit('SET_LOADING', 'GET', { root: true  })
-    await auth.signInWithPopup(provider).then(result => {
+    await auth.signInWithRedirect(provider).then(result => {
       // This gives you a Google Access Token. You can use it to access the Google API.
       var token = result.credential.accessToken;
       // The signed-in user info.
@@ -208,6 +212,54 @@ const actions = {
       await ref.doc(uid).set(payload, { merge: true })
       commit('SET_LOADING', null, { root: true  })
       // await dispatch('getUser', uid)
+
+      return { status: 'success' }
+    } catch (err) {
+      console.error(err)
+      commit('SET_LOADING', null, { root: true  })
+      return { status: 'error' }
+    }
+  },
+  async get ({ commit }, uid ) {
+    const user = ref.doc(uid)
+    
+    commit('SET_LOADING', 'GET', { root: true  })
+    commit('SET_USER_FAMILY', null)
+
+    // user.onSnapshot(snap => {
+    //   commit('SET_USER', snap.data())
+    // })
+    user.get()
+      .then(snap => {
+        if(snap.exists) {
+          commit('SET_USER_FAMILY', snap.data())
+          return { status: 'success' }
+        } else {
+          commit('SET_USER_FAMILY', null)
+          return { status: 'error' }
+        }
+      })
+    
+    commit('SET_LOADING', null, { root: true  })
+  },
+  async getFamilies ({ commit }, { uid }) {
+    commit('SET_LOADING', 'GET', { root: true  })
+
+    try {
+      let query = ref
+                  .where('familyId', '==', uid)
+      let { docs } = await query.get()
+      let response = []
+      
+      docs.forEach(async doc => {
+        var obj = doc.data()
+        obj.id = doc.id
+        response.push(obj)
+      })
+
+      commit('SET_USER_FAMILIES', response)
+
+      commit('SET_LOADING', null, { root: true  })
 
       return { status: 'success' }
     } catch (err) {

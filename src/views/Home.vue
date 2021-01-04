@@ -8,11 +8,11 @@
           class="pl-6 align-center"
         >
           <the-logo :height="32" />
-          <span class="ml-3 title" v-text="'myPuskesmas'" />
+          <span class="ml-3 title" v-text="'myPuskes'" />
         </v-layout>
       </template>
       <template slot="right-side">
-        <the-avatar :image="user.photoURL" :size="40" class="mr-3" @click="gotoProfile ()" />
+        <the-avatar v-if="user" :image="user.photoURL" :size="40" class="mr-3" @click="gotoProfile ()" />
       </template>
     </the-navbar>
 
@@ -67,7 +67,7 @@
       label="Ambil Antrian"
       onSubmit="queue/post"
     />
-    <dialog-qr
+    <dialog-qr-code
       v-model="dialogQr"
       :queue="queue"
     />
@@ -83,14 +83,14 @@
 import DialogCancel from '../components/Main/DialogCancel.vue'
 import QueueCard from '../components/Main/QueueCard.vue'
 import QueuesCard from '../components/Main/QueuesCard.vue'
-import DialogQr from '../components/Others/DialogQr.vue'
+import DialogQrCode from '../components/Others/DialogQrCode.vue'
 import DialogQueue from '../components/Others/DialogQueue.vue'
 import TheAvatar from '../components/Others/TheAvatar.vue'
 import TheLayout from '../components/Others/TheLayout.vue'
 import TheLogo from '../components/Others/TheLogo.vue'
 import TheNavbar from '../components/Others/TheNavbar.vue'
 export default {
-  components: { TheNavbar, TheLayout, TheLogo, TheAvatar, DialogQueue, QueueCard, QueuesCard, DialogQr, DialogCancel },
+  components: { TheNavbar, TheLayout, TheLogo, TheAvatar, DialogQueue, QueueCard, QueuesCard, DialogQrCode, DialogCancel },
   props: {
     user: {
       type: Object
@@ -123,9 +123,11 @@ export default {
       handler (user) {
         if (user) {
           if (user.currentQueue) {
-            setTimeout(() => {
-              this.$store.dispatch('queue/get', { id: user.currentQueue })
-            }, 1000)
+            if (!this.queue) {
+              setTimeout(() => {
+                this.$store.dispatch('queue/get', { id: user.currentQueue })
+              }, 1000)
+            }
           } else {
             this.$store.commit('queue/SET_QUEUE', { data: null })
           }

@@ -27,6 +27,17 @@ const routes = [
         name: 'Profile',
         component: lazyLoad('views/Profile')
       },
+      {
+        path: 'profil/:uid',
+        name: 'ProfileId',
+        component: lazyLoad('views/ProfileId'),
+        props: true
+      },
+      {
+        path: 'keluarga',
+        name: 'Families',
+        component: lazyLoad('views/Families')
+      },
     ]
   },
   {

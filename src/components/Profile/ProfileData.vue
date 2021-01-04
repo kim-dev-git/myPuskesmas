@@ -11,27 +11,33 @@
           <template
             v-for="(form, index) in formPatient"
           >
-            <!-- <v-divider v-if="index === 0" :key="'divider-top-' + index" /> -->
             <v-list-item
               :key="'form-' + index"
               class="py-0"
               @click="onClickItem(form)"
             >
-              <v-layout
-                row
-                wrap
-                class="px-3"
+              <v-skeleton-loader
+                :loading="!loaded"
+                type="text"
+                style="width: 100%"
+                class="py-2"
               >
-                <span
-                  v-text="form.label"
-                  class="text--secondary"
-                />
-                <v-spacer />
-                <span
-                  v-text="formValue(form) || '-'"
-                  class="font-weight-bold"
-                />
-              </v-layout>
+                <v-layout
+                  row
+                  wrap
+                  class="px-3"
+                >
+                  <span
+                    v-text="form.label"
+                    class="text--secondary"
+                  />
+                  <v-spacer />
+                  <span
+                    v-text="formValue(form) || '-'"
+                    class="font-weight-bold"
+                  />
+                </v-layout>
+              </v-skeleton-loader>
             </v-list-item>
             <v-divider v-if="index !== formPatient.length - 1" :key="'divider-' + index" />
           </template>
@@ -57,7 +63,15 @@ export default {
   props: {
     user: {
       type: Object
-    }
+    },
+    readonly: {
+      type: Boolean,
+      default: false
+    },
+    loaded: {
+      type: Boolean,
+      default: true
+    },
   },
   data: () => ({
     dialogInput: false,
@@ -71,14 +85,22 @@ export default {
   methods: {
     toDate,
     onClickItem (form) {
-      if (!form.disabled) {
-        let data = this.user
-        this.selectedForm = form
-        this.dialogInput = true
+      if (!this.readonly) {
+        if (!form.disabled) {
+          let data = this.user
+          this.selectedForm = form
+          this.dialogInput = true
+        }
       }
     },
     formValue (form) {
-      let val= this.user[form.value]
+      let val
+
+      if (this.user && this.user[form.value]) {
+        val = this.user[form.value]
+      } else {
+        return ''
+      }
 
       if (form.type === 'date') {
         val = toDate(val)

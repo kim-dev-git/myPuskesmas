@@ -2,7 +2,7 @@
   <div>
     <v-bottom-sheet id="form"
       :persistent="loading"
-      v-if="!status"
+      v-if="!status && queue"
       v-model="model"
     >
       <v-card>
