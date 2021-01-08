@@ -17,6 +17,7 @@
     </the-navbar>
 
     <the-layout>
+      <api />
       <v-layout
         v-if="user.currentQueue"
         class="py-2 grey lighten-3"
@@ -80,6 +81,7 @@
 </template>
 
 <script>
+import Api from '../components/api.vue'
 import DialogCancel from '../components/Main/DialogCancel.vue'
 import QueueCard from '../components/Main/QueueCard.vue'
 import QueuesCard from '../components/Main/QueuesCard.vue'
@@ -90,7 +92,7 @@ import TheLayout from '../components/Others/TheLayout.vue'
 import TheLogo from '../components/Others/TheLogo.vue'
 import TheNavbar from '../components/Others/TheNavbar.vue'
 export default {
-  components: { TheNavbar, TheLayout, TheLogo, TheAvatar, DialogQueue, QueueCard, QueuesCard, DialogQrCode, DialogCancel },
+  components: { TheNavbar, TheLayout, TheLogo, TheAvatar, DialogQueue, QueueCard, QueuesCard, DialogQrCode, DialogCancel, Api },
   props: {
     user: {
       type: Object

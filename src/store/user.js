@@ -101,7 +101,8 @@ const state = {
       value: 'noBPJS',
       type: 'number',
     },
-  ]
+  ],
+  userByNik: []
 }
 
 const getters = {
@@ -135,6 +136,9 @@ const mutations = {
   SET_USER_FAMILY: (state, response) => {
     state.family = response
   },
+  SET_USER_BY_NIK: (state, response) => {
+    state.userByNik = response
+  },
 }
 
 const actions = {
@@ -152,6 +156,7 @@ const actions = {
       } else {
 
         u.currentQueue = null
+        u.familyId = null
         u.role = state.registerRole
         u.createdAt = serverTimestamp()
 
@@ -204,7 +209,7 @@ const actions = {
     commit('SET_USER', null)
     router.push('/masuk')
   },
-  async put ({ commit, state, dispatch }, { payload }) {
+  async put ({ commit, state }, { payload }) {
     commit('SET_LOADING', 'POST', { root: true  })
 
     try {
@@ -267,6 +272,72 @@ const actions = {
       commit('SET_LOADING', null, { root: true  })
       return { status: 'error' }
     }
+  },
+  async getByNik ({ commit }, { nik }) {
+    commit('SET_LOADING', 'GET', { root: true  })
+    commit('SET_USER_BY_NIK', null)
+
+    try {
+      let query = ref.where('nik', '==', nik)
+      let { docs } = (await query.get())
+      let response = []
+
+      docs.forEach(doc => {
+        var obj = doc.data()
+        obj.id = doc.id
+        response.push(obj)
+      })
+
+      commit('SET_USER_BY_NIK', response)
+      commit('SET_LOADING', null, { root: true  })
+
+      return { status: 'success' }
+    } catch (err) {
+      console.error(err)
+      commit('SET_LOADING', null, { root: true  })
+      return { status: 'error' }
+    }
+
+  },
+  async addToFamily ({ commit, state, dispatch }, { user }) {
+    commit('SET_LOADING', 'POST', { root: true  })
+
+    try {
+      let familyHead = state.user
+      let query = ref.doc(user.uid)
+      await query.set(
+        { familyId: familyHead.uid },
+        { merge: true }
+      )
+      
+      commit('SET_LOADING', null, { root: true  })
+      await dispatch('getByNik', { nik: user.nik })
+      await dispatch('getFamilies', { uid: familyHead.uid })
+
+      return { status: 'success' }
+    } catch (err) {
+      console.error(err)
+      commit('SET_LOADING', null, { root: true  })
+      return { status: 'error' }
+    }
+  },
+  async deleteFromFamily ({ commit }, { uid }) {
+    commit('SET_LOADING', 'POST', { root: true  })
+
+    try {
+      await ref.doc(uid).set(
+          { familyId: null },
+          { merge: true}
+        )
+      commit('SET_LOADING', null, { root: true  })
+
+      return { status: 'success' }
+    } catch (err) {
+      console.error(err)
+      commit('SET_LOADING', null, { root: true  })
+      return { status: 'error' }
+    }
+
   }
 }
 

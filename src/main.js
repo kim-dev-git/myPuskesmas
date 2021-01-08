@@ -4,12 +4,18 @@ import './registerServiceWorker'
 import router from './router'
 import store from './store'
 import vuetify from './plugins/vuetify'
+import vueDebounce from 'vue-debounce'
 import { auth } from './services/firebase'
 
+Vue.use(vueDebounce, {
+  lock: false,
+  listenTo: 'input',
+  defaultTime: '700ms',
+  fireOnEmpty: true
+})
+
 Vue.config.productionTip = false
 
-
-Vue.config.productionTip = false
 
 let app
 auth.onAuthStateChanged(async (firebaseUser) => {

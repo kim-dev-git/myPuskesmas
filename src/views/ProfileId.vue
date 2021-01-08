@@ -2,8 +2,23 @@
   <div>
     <the-navbar
       back
+      title="Detail Data Keluarga"
       @back="$router.go(-1)"
-    />
+    >
+      <template slot="right-side">
+        <v-btn
+          v-if="family && user.uid !== family.uid"
+          small
+          depressed
+          color="error"
+          class="mr-4"
+          @click="dialog = true"
+        >
+          <v-icon v-text="'mdi-delete'" small left />
+          <span v-text="'Hapus'" />
+        </v-btn>
+      </template>
+    </the-navbar>
     <the-layout>
       <v-container>
         <v-card
@@ -30,18 +45,26 @@
           </v-skeleton-loader>
         </v-card>
         <profile-data :user="family" :readonly="true" :loaded="loaded" />
+
+        <dialog-delete
+          v-model="dialog"
+          :data="family"
+          onSubmit="user/deleteFromFamily"
+        />
+
       </v-container>
     </the-layout>
   </div>
 </template>
 
 <script>
+import DialogDelete from '../components/Families/DialogDelete.vue'
 import TheAvatar from '../components/Others/TheAvatar.vue'
 import TheLayout from '../components/Others/TheLayout.vue'
 import TheNavbar from '../components/Others/TheNavbar.vue'
 import ProfileData from '../components/Profile/ProfileData.vue'
 export default {
-  components: { TheNavbar, TheLayout, ProfileData, TheAvatar },
+  components: { TheNavbar, TheLayout, ProfileData, TheAvatar, DialogDelete },
   props: {
     uid: {
       type: String,
@@ -49,9 +72,13 @@ export default {
     }
   },
   data : () => ({
-    loaded: false
+    loaded: false,
+    dialog: false
   }),
   computed: {
+    user () {
+      return this.$store.state.user.user
+    },
     family () {
       return this.$store.state.user.family
     },
@@ -63,7 +90,11 @@ export default {
     async getUser () {
       await this.$store.dispatch('user/get', this.uid)
       this.loaded = true
-    }
+    },
+    // async deleteFromFamily () {
+    //   await this.$store.dispatch('user/deleteFromFamily', { uid: this.uid })
+    //   this.dialogDelete = false
+    // }
   },
   created () {
     this.getUser ()
