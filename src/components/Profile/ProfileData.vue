@@ -9,7 +9,7 @@
       >
         <v-list>
           <template
-            v-for="(form, index) in formPatient"
+            v-for="(form, index) in formUsed"
           >
             <v-list-item
               :key="'form-' + index"
@@ -39,7 +39,7 @@
                 </v-layout>
               </v-skeleton-loader>
             </v-list-item>
-            <v-divider v-if="index !== formPatient.length - 1" :key="'divider-' + index" />
+            <v-divider v-if="index !== formUsed.length - 1" :key="'divider-' + index" />
           </template>
         </v-list>
       </v-card>
@@ -80,6 +80,27 @@ export default {
   computed: {
     formPatient () {
       return this.$store.state.user.formPatient
+    },
+    formDoctor () {
+      return this.$store.state.user.formDoctor
+    },
+    formUsed () {
+      if (!this.user) return this.formPatient
+
+      let { role } = this.user
+
+      switch (role) {
+        case 'pasien':
+          return this.formPatient
+          break
+          
+        case 'dokter':
+          return this.formDoctor
+          break
+
+        default:
+          break
+      }
     }
   },
   methods: {
